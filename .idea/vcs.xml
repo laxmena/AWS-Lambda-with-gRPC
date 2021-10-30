@@ -2,8 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ScalaPB" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/grpc-java" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/lambda-grpc-calculator" vcs="Git" />
   </component>
 </project>
