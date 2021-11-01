@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+// The logquery service definition.
+service LogQuery {
+  // Checks if timewindow exists in the logs.
+  rpc CheckLogWindow(LogQueryRequest) returns (LogQueryResponse) {}
+}
+
+// The LogQueryRequest message definition.
+message LogQueryRequest {
+  string timeStamp = 1;
+  int32 window = 2;
+}
+
+// The LogQueryResponse message definition.
+message LogQueryResponse {
+  bool isAvailable = 1;
+}
+
