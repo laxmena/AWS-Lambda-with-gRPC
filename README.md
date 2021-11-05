@@ -1,9 +1,9 @@
-# AWS Lambda Implementation with gRPC and REST
+# AWS Lambda Implementation with gRPC ProtoBuf
 
 - __Author__: [Lakshmanan Meiyappan](https://laxmena.com)
 - __Email__: [lmeiya2@uic.edu](mailto:lmeiya2@uic.edu)
 
-This project uses AWS Lambda to implement a REST and gRPC server, built with Scala and sbt.
+This project uses AWS Lambda to implement gRPC based request using Protobuf, built with Scala and sbt.
 
 ## Dependencies
 
@@ -15,127 +15,137 @@ This project uses AWS Lambda to implement a REST and gRPC server, built with Sca
 - aws-lambda-java-events 3.10.0
 - scalapb-runtime-grpc
 
+## Basic Definitions:
+- AWS Lambda is a Serverless Application Model (SaaS) that allows you to run serverless code on AWS.
+- gRPC is a framework for building high-performance, distributed, and fault-tolerant applications.
+- Protobuf is a language for encoding and decoding data structures.
+- Scala is a general-purpose programming language that is class-based, object-oriented, and strong-typed.
+
 ## Functionality
 
-LogProcessing Map-Reduce comprises Four Map-Reduce Tasks.
+gRPC requires a server and a client. The server is the one that receives the request and sends the response. So, we need 
+a gRPC server to be active. But implementing in AWS Lambda is not possible. gRPC Server implementation is not possible 
+for various reasons - 
+1. It defeats the purpose of AWS Lambda of serverless computing
+2. We do not control the ports in AWS Lambda
+3. AWS Lambda is billed based on the number of requests, execution time and memory consumed. So, even if we find a 
+workaround to implement gRPC server in AWS Lambda, it will result in high execution costs.
 
-- __LogLevel Frequency__: Compute Count for each Log Level across all input files.
-- __Most Error in TimeInterval__: Find Time Intervals with most errors, results in descending order.
-- __Longest Substring matching Regex__: Length of Longest Substring that matches a Regular Expression.
-- __LogLevel Frequency Distribution in TimeIntervals__: LogLevel distributions in specified TimeIntervals.
+So, we need to find a workaround to make the language independent distributed computing work.  To accomplish that, 
+we make use of Protobuf - to get language independent representation of data structures.
 
-Users can inject Regex pattern in the Config files, and the Map-Reduce jobs will search for the pattern in the LogFiles
-and produce results for the requested pattern.
+We then transfer this Protobuf objects to the AWS Lambda function through HTTP as encoded data. In the Lambda, we 
+receive the encoded data and decode it to the Protobuf object. We then make use of the data to compute the result and 
+return the result back to the client in similar manner.
 
-See How to __Run LogProcessing MapReduce__ section for more instructions on how to execute this program.
+Here is the higher level workflow of the project:
 
-## Documentation and Demo Video
+![gRPC + Lambda](./assets/1.png)
+
+1. Protobuf object from client is encoded, and sent in the body of the HTTP request
+2. Lambda function receives the encoded data and decodes it to the Protobuf object
+3. Lambda function uses the Protobuf object to compute the result
+4. Lambda function encodes the result and sends it back to the client
+5. Client receives the encoded result and decodes it to the Protobuf object
+6. Client uses the Protobuf object to get the result
+
+## Lambda Function Workflow and Logic
+
+Note: All Lambda Functions are written in Python. 
+
+Please refer this [article](https://towardsdatascience.com/how-to-install-python-packages-for-aws-lambda-layer-74e193c76a91), on how to bundle the Lambda functions with dependencies, as AWS Lambda does not have gRPC 
+packages available by default. 
+
+Find the Lambda Functions here: 
+1. [Indexing Lambda Function]()
+2. [gRPC ProtoBuf Lambda Function]()
+3. [REST Lambda Function]()
+
+### Indexing Log file for faster access:
+
+![](./assets/2.png)
+
+LogProcessor program in EC2 machine generates Log files, and stores them in S3 bucket. We have a second Lambda that 
+is triggered when there is a new file added to the S3 bucket. It reads the file and indexes the log file. It creates
+key-value pairs of the TimeStamp(HH:MM:SS) and the value as (LogFileName, startByte, endByte), and stores them in 
+a pickle file.  
+
+This significantly speeds up the lookup time for the future requests
+
+### gRPC ProtoBuf Lambda Function Workflow:
+
+![](./assets/3.png)
+
+__Steps:__
+
+1. Client triggers API Gateway to send the request to the Lambda function.
+2. Lambda function receives the request and decodes the Protobuf object.
+3. Lambda function uses the Protobuf object to compute the result.
+4. Lambda function looks up the Date TimeStamp in the pickle file and gets the LogFileName, startByte and endByte.
+5. If the Date TimeStamp is found in the pickle file, it reads the LogFile from S3 and returns the result - True (as protobuf object).
+6. If the Date TimeStamp is not found in the pickle file, it returns False (as protobuf object).
+
+
+## Youtube Demo Video
 
 Please find the __Documentation__ of this Project hosted in Github pages here: [LogProcessing Documentation](https://laxmena.github.io/LogProcessing-MapReduce/)
 
 __Demo and Walk-through Video:__
 
-[Running LogProcessing Map-Reduce on AWS EMR](https://youtu.be/et5_2hc6MWo)
+[gRPC Protobuf + AWS Lambda for LogQuery Processing](https://youtu.be/YFPVKTBbWOY)
 
-[![LogProcessing AWS Video Demo](https://img.youtube.com/vi/et5_2hc6MWo/0.jpg)](https://youtu.be/et5_2hc6MWo)
-
-
-## Report and Results
-
-Detailed Report and results after executing the Map Reduce task can be found here: __[LogProcessing MapReduce Report](./report/README.md)__.
+[![LogProcessing AWS Video Demo](https://img.youtube.com/vi/YFPVKTBbWOY/0.jpg)](https://youtu.be/YFPVKTBbWOY)
 
 ## How to Run "AWS-Lambda with gRPC and REST"?
 
-### Creating compiled jar file
 #### Step 1: Clone the Project
 ```bash
 git clone https://github.com/laxmena/AWS-Lambda-with-gRPC-Rest.git
 cd AWS-Lambda-with-gRPC-Rest
 ```
 
-#### Step 2: Generate JAR File
+#### Step 2: Execute the following command to compile and run the project
 ```bash
 sbt clean compile 
 sbt test
-sbt assembly
+sbt "run YYYY-MM-DD HH:MM:SS window"
 ```
-This command will generate a jar file in `target/scala-2.13.4/` directory
 
-### How to Execute the MapReduce Jobs?
+- First argument is the Date in the format YYYY-MM-DD
+- Second argument is the time in the format HH:MM:SS
+- Third argument is the window, integer value in seconds. (Which is just placeholder for this gRPC implementation.)
 
+#### Sample Output:
 
-1. Connect to the remote hadoop master using putty or command line.
-2. Transfer the Input Log Files and JAR file to remote machine. Copy the input files to the HDFS directory. (See Commands 1, 3 and 4 in __Useful commands__ section below.)
-3. Run the Hadoop map reduce job by executing the following command:
-    ```shell
-    hadoop jar LogProcessing-MapReduce-assembly [input-path] [output-path] [job-key] [pattern-key]
-    ```
-4. On successful completion of Map-Reduce task, the results will be generated in the `[output-path]`. See commands 5 and 6 in __Useful commands__ section below to read the output.
+This is a sample output after running the following command:
+```shell
+sbt "run 2021-11-05 22:19:23 1"
+```
 
-List of available `[job-key]` and its associated Map-Reduce task:
+Output:
 
-| job-key | Map-Reduce Task | Supports Regex Search? |
-|---------|-----------------|-------------------------------|
-| log-frequency | LogLevel Frequency | &#x2718; |
-| most-error | Most Error in TimeInterval | &#x2714; |
-| longest-regex | Longest Substring matching Regex | &#x2714; |
-| log-freq-dist | LogLevel Distribution in TimeIntervals | &#x2714; |
+```shell
+[info] running com.laxmena.LambdaClient 2021-11-05 22:19:23 1
+17:22:04.223 [run-main-0] INFO  java.lang.Class - LambdaClient started
+17:22:04.582 [run-main-0] INFO  java.lang.Class - date: 2021-11-05, time: 22:19:23, window: 1
+17:22:04.618 [run-main-0] INFO  java.lang.Class - Loaded Config
+17:22:04.621 [run-main-0] INFO  java.lang.Class - Loaded Grpc Config
+17:22:04.625 [run-main-0] INFO  java.lang.Class - Starting AWS Protobuf Client
+17:22:09.955 [run-main-0] INFO  java.lang.Class - req: HttpResponse([B@50166a01,200,TreeMap(Apigw-Requestid -> Vector(IWg5OiP9oAMEMWA=), Connection -> Vector(keep-alive), Content-Length -> Vector(2), Content-Type -> Vector(text/plai
+n; charset=utf-8), Date -> Vector(Fri, 05 Nov 2021 22:22:25 GMT), Status -> Vector(HTTP/1.1 200 OK)))
+17:22:09.976 [run-main-0] INFO  java.lang.Class - LogQueryResponse: LogQueryResponse(true,UnknownFieldSet(Map()))
+17:22:09.978 [run-main-0] INFO  java.lang.Class - LogQueryResponse is available
 
-List of available `pattern-key` by Default:
+```
 
-|  key  | pattern | Description |
-|-------|---------|-------------|
-| pattern1 | .* | (Default) Matches Entire String |
-| pattern2 | \\([^)\\n]*\\) | String enclosed within Parantheses |
-| pattern3 | [^\\s]+ | String without any spaces |
-| pattern4 | [\\d]+ | Consecutive Numbers |
-| pattern5 | ([a-c][e-g][0-3] or [A-Z][5-9][f-w]){5,15} | Pattern1 or Pattern2 should repeat between 5 to 15 times, inclusive |
+## Resources:
 
-Different combinations of `job-key` and `pattern-key` can be used to execute Map-Reduce tasks.
-
-Examples:
-1. `hadoop jar LogProcessing-MapReduce-assembly-0.1.jar logprocess/input logprocess/longest-regex-1 longest-regex pattern1`
-2. `hadoop jar LogProcessing-MapReduce-assembly-0.1.jar logprocess/input logprocess/log-freq-dist-3 log-freq-dist pattern3`
-3. `hadoop jar LogProcessing-MapReduce-assembly-0.1.jar logprocess/input logprocess/logfrequency`
-4. `hadoop jar LogProcessing-MapReduce-assembly-0.1.jar logprocess/input logprocess/mosterror most-error pattern5`
-
-### Useful commands:
-
-1. Transfer file from Local Machine to a Remote machine
-    ```sh  
-    scp -P 2222 <path/to/local/file> <username@remote_machine_ip>:<path/to/save/files>
-    ```
-2. Transfer directory from Local Machine to Remote machine
-    ```sh  
-    scp -P 2222 -r <path/to/local/directory> <username@remote_machine_ip>:<path/to/save/files>
-    ```
-3. Create HDFS Directory
-    ```sh
-    hadoop fs -mkdir <directory_name>
-    ```
-4. Add Files to HDFS
-    ```shell
-    hadoop fs -put <path/to/files> <hdfs/directory/path> 
-    ```
-5. Reading Hadoop Map-Reduce Output
-    ```shell
-    hadoop fs -cat <hdfs/output/directory>/*
-    ```
-6. Save Hadoop Map-Reduce output to Local file
-   ```shell
-   hadoop fs -cat <hdfs/output/directory>/* > filename.extension
-   ```
-7. Running JAR with multiple main classes
-   ```shell
-   hadoop jar <name-of-jar> <full-class-name> <input-hdfs-directory> <output-hdfs-directory> 
-   ```
-8. List files in HDFS Directory
-   ```shell
-    hdfs dfs -ls
-    hdfs dfs -ls <directory/path>
-   ```
-9. Remove file or directory in HDFS
-   ```shell
-   hdfs dfs -rm -r <path/to/directory>
-   hdfs dfs -rm <path/to/file>
-   ```
+- https://cloud.google.com/blog/products/api-management/understanding-grpc-openapi-and-rest-and-when-to-use-them
+- https://www.freecodecamp.org/news/rest-is-the-new-soap-97ff6c09896d/
+- https://aws.amazon.com/blogs/opensource/the-versatility-of-grpc-an-open-source-high-performance-rpc-framework/
+- https://youtu.be/MgQDeKwTnDQ
+- https://www.youtube.com/c/amazonwebservices/videos
+- https://stackoverflow.com/questions/47764448/how-to-test-grpc-apis
+- https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html
+- https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
+- https://towardsdatascience.com/how-to-install-python-packages-for-aws-lambda-layer-74e193c76a91

@@ -32,13 +32,15 @@ object LambdaClient {
 
   /**
    Main method, recieves the following arguments:
-   1. Date in the format YYYY-MM-DD
-   2. Time in the format HH:MM:SS
-   3. Window size in minutes
+   <ol>
+   <li> Date in the format YYYY-MM-DD </li>
+   <li> Time in the format HH:MM:SS </li>
+   <li> Window size in minutes </li>
+   <ol>
 
-   Functionality:
-   Creates a Protobuf message with the given parameters and sends it to the Lambda function.
-   The response(isAvailable) is printed to the console.
+   <b>Functionality:</b>
+   <p>Creates a Protobuf message with the given parameters and sends it to the Lambda function.
+   The response(isAvailable) is printed to the console.</p>
 
    @param args Date, Time, Window Size
 

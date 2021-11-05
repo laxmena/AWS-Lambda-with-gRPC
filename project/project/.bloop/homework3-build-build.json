@@ -200,7 +200,7 @@
         "platform": {
             "name": "jvm",
             "config": {
-                "home": "C:\\Program Files\\Java\\jdk-11.0.12",
+                "home": "C:\\Program Files\\Java\\jdk1.8.0_301\\jre",
                 "options": [
                     "-Duser.dir=D:\\Academics\\Semester2\\CS441\\Homework3\\project\\project"
                 ]
