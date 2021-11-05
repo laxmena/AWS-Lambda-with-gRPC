@@ -88,13 +88,21 @@ __Steps:__
 
 ## Youtube Demo Video
 
-Please find the __Documentation__ of this Project hosted in Github pages here: [LogProcessing Documentation](https://laxmena.github.io/LogProcessing-MapReduce/)
+Please find the __Documentation__ of this Project hosted in Github pages here: [Documentation](https://laxmena.github.io/AWS-Lambda-with-gRPC/com/laxmena/LambdaClient.html)
 
 __Demo and Walk-through Video:__
 
-[gRPC Protobuf + AWS Lambda for LogQuery Processing](https://youtu.be/YFPVKTBbWOY)
+### Part 1:
+
+**[gRPC Protobuf + AWS Lambda for LogQuery Processing | Part 1](https://youtu.be/YFPVKTBbWOY)**
 
 [![LogProcessing AWS Video Demo](https://img.youtube.com/vi/YFPVKTBbWOY/0.jpg)](https://youtu.be/YFPVKTBbWOY)
+
+### Part 2
+**[How Lambda Functions work | Part 2](https://youtu.be/5hdhwfg5ytQ)**
+
+[![LogProcessing AWS Video Demo](https://img.youtube.com/vi/5hdhwfg5ytQ/0.jpg)](https://youtu.be/5hdhwfg5ytQ)
+
 
 ## How to Run "AWS-Lambda with gRPC and REST"?
 
