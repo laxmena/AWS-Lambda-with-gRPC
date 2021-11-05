@@ -30,14 +30,28 @@ object LambdaClient {
     case None => throw new Exception("Unable to obtain configuration reference")
   }
 
+  /**
+   Main method, recieves the following arguments:
+   1. Date in the format YYYY-MM-DD
+   2. Time in the format HH:MM:SS
+   3. Window size in minutes
+
+   Functionality:
+   Creates a Protobuf message with the given parameters and sends it to the Lambda function.
+   The response(isAvailable) is printed to the console.
+
+   @param args Date, Time, Window Size
+
+  **/
+
   def main(args: Array[String]): Unit = {
     logger.info("LambdaClient started")
-    print("args", args)
-
-    val logQuery = LogQueryRequest(timeStamp = "10:21:12", window = 1)
-    val logAvailable = AwsProtobufClient.run(logQuery)
-    logger.info("logAvailable", logAvailable)
-
+    val date = args(0)
+    val time = args(1)
+    val window = args(2).toInt
+    logger.info(s"date: $date, time: $time, window: $window")
+    val logQuery = LogQueryRequest(date = date, time = time, window = window)
+    AwsProtobufClient.run(logQuery)
   }
 
 }

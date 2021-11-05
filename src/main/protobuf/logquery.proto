@@ -8,8 +8,9 @@ service LogQuery {
 
 // The LogQueryRequest message definition.
 message LogQueryRequest {
-  string timeStamp = 1;
-  int32 window = 2;
+  string date = 1;
+  string time = 2;
+  int32 window = 3;
 }
 
 // The LogQueryResponse message definition.

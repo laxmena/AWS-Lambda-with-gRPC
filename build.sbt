@@ -1,3 +1,5 @@
+import sbt.Keys.libraryDependencies
+
 name := "AWS-Lambda-with-gRPC-Rest"
 
 version := "0.1"
@@ -33,6 +35,9 @@ libraryDependencies ++= Seq(
   "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
   "org.scalaj" %% "scalaj-http" % "2.4.2",
 )
+libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies += "com.twitter" %% "finagle-http" % "21.9.0"
+
 Compile / PB.targets := Seq(
   scalapb.gen() -> (sourceManaged in Compile).value
 )

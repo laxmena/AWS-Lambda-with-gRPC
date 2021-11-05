@@ -28,10 +28,10 @@ object AwsProtobufClient {
     case Some(c) => c.getConfig("logQuery")
     case None => throw new Exception("Unable to obtain configuration reference")
   }
-  logger.info("Config: ", config)
+  logger.info("Loaded Config")
 
   val grpcConfig = config.getConfig("grpc")
-  logger.info("Grpc Config: ", grpcConfig)
+  logger.info("Loaded Grpc Config")
 
   val grpcHost = grpcConfig.getString("host")
   val grpcPort = grpcConfig.getInt("port")
@@ -39,6 +39,18 @@ object AwsProtobufClient {
   val accept = grpcConfig.getString("acceptType")
   val grpcChannel = s"$grpcHost:$grpcPort"
   val awsGrpcChannel = s"$grpcHost"
+
+  /**
+   * <h3>Send LogQueryRequest to AWS Lambda</h3>
+   * 1. LogQueryRequest
+   *
+   * Functionality:
+   * 1. Encodes the LogQueryRequest into bytes and sends
+   * 2. The response(isAvailable) is printed to the console.
+   *
+   * @param logQueryRequest LogQueryRequest protobuf message
+   * @return Boolean true if the log is available, false otherwise
+   */
 
   def run(logQuery: LogQueryRequest): Boolean = {
     logger.info("Starting AWS Protobuf Client")
@@ -52,10 +64,14 @@ object AwsProtobufClient {
 
     val response = request.asBytes.body
     logger.info(s"req: ${request.asBytes}")
-    logger.info(s"Response: ${response}")
     val logQueryRes: LogQueryResponse = LogQueryResponse.parseFrom(response)
     logger.info(s"LogQueryResponse: $logQueryRes")
-
-    logQueryRes.isAvailable
+    if(logQueryRes.isAvailable) {
+      logger.info("LogQueryResponse is available")
+      true
+    } else {
+      logger.info("LogQueryResponse is not available")
+      false
+    }
   }
 }
