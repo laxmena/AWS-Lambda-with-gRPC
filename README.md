@@ -53,13 +53,15 @@ Here is the higher level workflow of the project:
 
 Note: All Lambda Functions are written in Python. 
 
+Lambda functions source code is in the [LambdaCode](./LambdaCode) directory.
+
 Please refer this [article](https://towardsdatascience.com/how-to-install-python-packages-for-aws-lambda-layer-74e193c76a91), on how to bundle the Lambda functions with dependencies, as AWS Lambda does not have gRPC 
 packages available by default. 
 
 Find the Lambda Functions here: 
-1. [Indexing Lambda Function]()
-2. [gRPC ProtoBuf Lambda Function]()
-3. [REST Lambda Function]()
+1. [Indexing Lambda Function](https://github.com/laxmena/AWS-Lambda-with-gRPC/blob/master/LambdaCode/Indexing%20Lambda/lambda_function.py)
+2. [gRPC ProtoBuf Lambda Function](https://github.com/laxmena/AWS-Lambda-with-gRPC/tree/master/LambdaCode/gRPC%20Lambda)
+3. [REST Lambda Function](https://github.com/laxmena/AWS-Lambda-with-gRPC/tree/master/LambdaCode/Rest%20Lambda)
 
 ### Indexing Log file for faster access:
 
