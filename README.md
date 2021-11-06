@@ -110,7 +110,7 @@ __Demo and Walk-through Video:__
 
 #### Step 1: Clone the Project
 ```bash
-git clone https://github.com/laxmena/AWS-Lambda-with-gRPC-Rest.git
+git clone https://github.com/laxmena/AWS-Lambda-with-gRPC.git
 cd AWS-Lambda-with-gRPC-Rest
 ```
 
