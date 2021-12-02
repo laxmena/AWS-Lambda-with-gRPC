@@ -1,0 +1,28 @@
+Student: Lakshmanan Meiyappan
+Grader: Vineet Patel
+
+Grading Criteria: 
+ - only some basic RESTful service examples from some repos are given and nothing else is done: zero grade;
+	* tasks/video present: -0%
+ - having less than five unit and/or integration scalatests: up to 5% lost;
+	* unit tests: -0%
+ - missing comments and explanations from your program: up to 5% lost;
+	* comments present: -0%
+ - logging is not used in your programs: up to 3% lost;
+	* logging present: -0%
+ - hardcoding the input values in the source code instead of using the suggested configuration libraries: up to 4% lost;
+	* configuration used: -0% 
+ - for each used var for heap-based shared variables or mutable collections: 0.2% lost;
+    * no vars: -0%
+ - for each used while or for or other loops with induction variables to iterate over a collection: 0.2% lost;
+	* no loops: -0%
+ - no instructions in README.md on how to install and run your program: up to 5% lost;
+	* instructions present: -0%
+ - the program crashes without completing the core functionality: up to 6% lost;
+	* program doesn't crash: -0%
+ - the documentation exists but it is insufficient to understand your program design and models and how you assembled and deployed all components of your solution: up to 5% lost;
+	* documentation present: -0%
+
+	
+Total Grade: 8%
+Comments: Good job!
